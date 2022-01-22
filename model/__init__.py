@@ -1,0 +1,1 @@
+from .tiny_dalle_model import TinyDalleModel

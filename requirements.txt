@@ -1,0 +1,6 @@
+pandas
+requests
+transformers
+pytorch
+dall_e
+numpy
