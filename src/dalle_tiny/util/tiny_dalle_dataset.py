@@ -9,6 +9,7 @@ from transformers import BartTokenizer, BartForConditionalGeneration
 from dall_e          import map_pixels, unmap_pixels, load_model
 import PIL
 from torchvision.transforms import ToTensor, Lambda, Compose
+import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 
 
