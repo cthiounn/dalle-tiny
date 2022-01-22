@@ -7,11 +7,13 @@ from torch.utils.data import Dataset, DataLoader, IterableDataset
 import transformers 
 from transformers import BartTokenizer, BartForConditionalGeneration
 from dall_e          import map_pixels, unmap_pixels, load_model
-
+import PIL
+from torchvision.transforms import ToTensor, Lambda, Compose
+import torchvision.transforms.functional as TF
 
 
 class TinyDalleDataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform=None):
+    def __init__(self, csv_file, root_dir,dataset_type, transform=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -23,17 +25,19 @@ class TinyDalleDataset(Dataset):
         self.data = pd.read_csv(csv_file)
         self.root_dir = root_dir
         self.transform = transform
+        self.dataset_type=dataset_type
         self.tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
         self.dev="cpu"
         self.enc= load_model("https://cdn.openai.com/dall-e/encoder.pkl", self.dev)
         self.model= BartForConditionalGeneration.from_pretrained('facebook/bart-large-cnn')
+        self.base_url= "http://images.cocodataset.org/train2017/" if self.dataset_type=="train" else "http://images.cocodataset.org/val2017/"
 
-    def download_image(url):
+    def download_image(self,url):
         resp = requests.get(url)
         resp.raise_for_status()
         return PIL.Image.open(io.BytesIO(resp.content))
 
-    def preprocess(img):
+    def preprocess(self,img):
         s = min(img.size)
         target_image_size = 256
         if s < target_image_size:
@@ -57,10 +61,11 @@ class TinyDalleDataset(Dataset):
         #                         self.data.iloc[idx, 0])
         # image = io.imread(img_name)
         image_name=self.data.iloc[idx,0]
-        image_url="http://images.cocodataset.org/val2017/"+image_name
+
+        image_url=self.base_url+image_name
         caption = self.data.iloc[idx, 1]
         inputs=self.tokenizer(caption, return_tensors="pt")
-        sample = {'image': self.enc(download_image(image_url)), 'caption': self.model(**inputs)}
+        sample = {'image': self.enc(self.preprocess(self.download_image(image_url))), 'caption': self.model(**inputs)}
 
         if self.transform:
             sample = self.transform(sample)
