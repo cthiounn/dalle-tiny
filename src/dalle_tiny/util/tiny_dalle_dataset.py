@@ -14,7 +14,7 @@ import torchvision.transforms.functional as TF
 
 
 class TinyDalleDataset(Dataset):
-    def __init__(self, csv_file, root_dir,dataset_type, transform=None):
+    def __init__(self, csv_file,dataset_type, transform=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
@@ -24,7 +24,6 @@ class TinyDalleDataset(Dataset):
         """
         super(TinyDalleDataset, self).__init__()
         self.data = pd.read_csv(csv_file)
-        self.root_dir = root_dir
         self.transform = transform
         self.dataset_type=dataset_type
         self.tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
