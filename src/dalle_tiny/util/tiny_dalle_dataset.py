@@ -65,7 +65,13 @@ class TinyDalleDataset(Dataset):
         image_url=self.base_url+image_name
         caption = self.data.iloc[idx, 1]
         inputs=self.tokenizer(caption, return_tensors="pt")
-        sample = {'image': self.enc(self.preprocess(self.download_image(image_url))), 'caption': self.model(**inputs)}
+
+        z_logits=self.enc(self.preprocess(self.download_image(image_url)))
+        z = torch.argmax(z_logits, axis=1)
+        z = F.one_hot(z, num_classes=enc.vocab_size).permute(0, 3, 1, 2).float()
+        
+        
+        sample = {'image': z, 'caption': self.model(**inputs)}
 
         if self.transform:
             sample = self.transform(sample)
