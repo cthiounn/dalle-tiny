@@ -10,8 +10,8 @@ def main():
     torch.cuda.manual_seed_all(42)
     torch.manual_seed(42)
     
-    training_data = TinyDalleDataset(csv_file="train.csv",dataset_type="train")
-    test_data = TinyDalleDataset(csv_file="validation.csv",dataset_type="val")
+    training_data = TinyDalleDataset(root_dir_images="./",csv_file="train.csv",dataset_type="train")
+    test_data = TinyDalleDataset(root_dir_images="./",csv_file="validation.csv",dataset_type="val")
 
     train_dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=64, shuffle=True)
@@ -30,7 +30,7 @@ def main():
             optimizer.step()
             total_loss+=loss.item()
 
-        print("epoch:",epoch,"total_loss:",total_loss
+        print("epoch:",epoch,"total_loss:",total_loss)
     
 
 

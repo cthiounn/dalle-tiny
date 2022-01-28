@@ -3,6 +3,7 @@ import io
 import requests
 import pandas as pd
 import torch
+import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader, IterableDataset
 import transformers 
 from transformers import BartTokenizer, BartForConditionalGeneration
@@ -12,30 +13,20 @@ from torchvision.transforms import ToTensor, Lambda, Compose
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 
-
 class TinyDalleDataset(Dataset):
-    def __init__(self, csv_file,dataset_type, transform=None):
+    def __init__(self,root_dir_images, csv_file,dataset_type):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
         """
         super(TinyDalleDataset, self).__init__()
         self.data = pd.read_csv(csv_file)
-        self.transform = transform
         self.dataset_type=dataset_type
         self.tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
         self.dev="cpu"
         self.enc= load_model("https://cdn.openai.com/dall-e/encoder.pkl", self.dev)
         self.model= BartForConditionalGeneration.from_pretrained('facebook/bart-large-cnn')
-        self.base_url= "http://images.cocodataset.org/train2017/" if self.dataset_type=="train" else "http://images.cocodataset.org/val2017/"
-
-    def download_image(self,url):
-        resp = requests.get(url)
-        resp.raise_for_status()
-        return PIL.Image.open(io.BytesIO(resp.content))
+        self.root_dir_images=root_dir_images
 
     def preprocess(self,img):
         s = min(img.size)
@@ -56,24 +47,15 @@ class TinyDalleDataset(Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-
-        # img_name = os.path.join(self.root_dir,
-        #                         self.data.iloc[idx, 0])
-        # image = io.imread(img_name)
+        
         image_name=self.data.iloc[idx,0]
-
-        image_url=self.base_url+image_name
         caption = self.data.iloc[idx, 1]
         inputs=self.tokenizer(caption, return_tensors="pt")
-
-        z_logits=self.enc(self.preprocess(self.download_image(image_url)))
+        img=PIL.Image.open(self.root_dir_images+image_name)
+        z_logits=self.enc(self.preprocess(img))
         z = torch.argmax(z_logits, axis=1)
-        z = F.one_hot(z, num_classes=enc.vocab_size).permute(0, 3, 1, 2).float()
+        z = F.one_hot(z, num_classes=self.enc.vocab_size).permute(0, 3, 1, 2).float()
         
         
         sample = {'image': z, 'caption': self.model(**inputs)}
-
-        if self.transform:
-            sample = self.transform(sample)
-
         return sample
