@@ -4,6 +4,7 @@ import torch.nn as nn
 from transformers import BartForConditionalGeneration
 from transformers import BartConfig
 from transformers.models.bart.modeling_bart  import BartDecoder
+import math
 
 class TinyDalleModel(BartForConditionalGeneration):
   def reinit_model_for_images(self):
