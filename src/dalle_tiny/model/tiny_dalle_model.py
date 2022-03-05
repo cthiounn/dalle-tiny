@@ -19,5 +19,5 @@ class TinyDalleModel(BartForConditionalGeneration):
     # self.get_decoder().embed_positions=nn.Embedding(256,1024)
     self.get_decoder().embed_tokens=nn.Embedding(16384+1,1024)    
     self.get_encoder().embed_tokens=nn.Embedding(50264,1024)
-    self.config.decoder_start_token_id=16385
+    self.config.decoder_start_token_id=16384
     del t
