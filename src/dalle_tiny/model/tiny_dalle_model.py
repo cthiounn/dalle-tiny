@@ -4,6 +4,7 @@ import torch.nn as nn
 from transformers import BartForConditionalGeneration
 from transformers import BartConfig
 from transformers.models.bart.modeling_bart  import BartDecoder
+from transformers.models.bart.modeling_bart  import BartEncoder
 import math
 
 class TinyDalleLearnedPositionalEmbedding(nn.Embedding):
@@ -26,6 +27,7 @@ class TinyDalleModel(BartForConditionalGeneration):
     self.lm_head=nn.Linear(in_features=1024, out_features=16384+1, bias=False)
     self.final_logits_bias=torch.rand(16384+1)    
     t=BartDecoder(BartConfig())
+    te=BartEncoder(BartConfig())
     self.get_decoder().layers=t.layers
     self.get_decoder().layernorm_embedding=t.layernorm_embedding
     self.get_decoder().padding_idx=16385
@@ -37,5 +39,7 @@ class TinyDalleModel(BartForConditionalGeneration):
     self.get_encoder().embed_positions=TinyDalleLearnedPositionalEmbedding(256,1024)
     self.get_encoder().padding_idx=16385
     self.get_encoder().offset=0
+    self.get_encoder().layers=te.layers
+    self.get_encoder().layernorm_embedding=te.layernorm_embedding
     self.config.decoder_start_token_id=16384
-    del t
+    del t,te
