@@ -31,11 +31,11 @@ class TinyDalleModel(BartForConditionalGeneration):
     self.get_decoder().padding_idx=16385
     self.get_decoder().offset=0
     self.get_decoder().embed_scale=math.sqrt(1024)
-    self.get_decoder().embed_positions=TinyDalleLearnedPositionalEmbedding(256,1024)
+    # self.get_decoder().embed_positions=TinyDalleLearnedPositionalEmbedding(256,1024)
     self.get_decoder().embed_tokens=nn.Embedding(16384+1,1024)
-    self.get_encoder().embed_tokens=nn.Embedding(50264,1024)
-    self.get_encoder().embed_positions=TinyDalleLearnedPositionalEmbedding(256,1024)
-    self.get_encoder().padding_idx=16385
-    self.get_encoder().offset=0
+    # self.get_encoder().embed_tokens=nn.Embedding(50264,1024)
+    # self.get_encoder().embed_positions=TinyDalleLearnedPositionalEmbedding(256,1024)
+    # self.get_encoder().padding_idx=16385
+    # self.get_encoder().offset=0
     self.config.decoder_start_token_id=16384
     del t
