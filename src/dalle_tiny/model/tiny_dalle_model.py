@@ -6,6 +6,9 @@ from transformers import BartConfig
 from transformers.models.bart.modeling_bart  import BartDecoder
 import math
 
+# original code from Borisdayma/dalle-mini, available here : https://github.com/borisdayma/dalle-mini/blob/71c078712e0246a6247fbf255a1fce919e547835/src/dalle_mini/model/modeling.py#L1103
+
+# Code was copy here in case we want to add some additional operations
 class TinyDalleLearnedPositionalEmbedding(nn.Embedding):
     def __init__(self, num_embeddings: int, embedding_dim: int):
         # Bart is set up so that if padding_idx is specified then offset the embedding ids by 2
